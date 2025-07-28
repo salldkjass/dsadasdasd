@@ -1,14 +1,13 @@
-const express = require('express');
 const axios = require('axios');
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.get('/', async (req, res) => {
-    const letras = parseInt(req.query.letras);
+exports.handler = async (event) => {
+    const letras = parseInt(event.queryStringParameters.letras);
 
     if (!letras || isNaN(letras)) {
-        return res.status(400).json({ error: "Parâmetro 'letras' inválido ou ausente." });
+        return {
+            statusCode: 400,
+            body: JSON.stringify({ error: "Parâmetro 'letras' inválido ou ausente." })
+        };
     }
 
     try {
@@ -25,18 +24,20 @@ app.get('/', async (req, res) => {
                 headers: {
                     'Origin': 'https://www.invertexto.com',
                     'Referer': 'https://www.invertexto.com/gerador-palavras-aleatorias',
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36',
+                    'User-Agent': 'Mozilla/5.0',
                     'Content-Type': 'application/x-www-form-urlencoded'
                 }
             }
         );
 
-        res.json(response.data);
+        return {
+            statusCode: 200,
+            body: JSON.stringify(response.data)
+        };
     } catch (error) {
-        res.status(500).json({ error: 'Erro ao buscar dados da Invertexto.' });
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ error: "Erro ao buscar dados da Invertexto." })
+        };
     }
-});
-
-app.listen(PORT, () => {
-    console.log(`Servidor rodando em http://localhost:${PORT}`);
-});
+};
